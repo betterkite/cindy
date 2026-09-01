@@ -61,7 +61,15 @@ export function normalizeVllmResponsesRequest(body: unknown): object | null {
 
   if (source.instructions !== undefined && source.instructions !== null && source.instructions !== '') {
     const systemMessage = { type: 'message', role: 'system', content: source.instructions };
-    input = Array.isArray(input) ? [systemMessage, ...input] : [systemMessage];
+    // Responses 允许 input 为纯字符串（等价单条 user 消息）。重试时必须把它转成
+    // 显式 user 消息追加在 system 之后，绝不能被 instructions 的 system 消息覆盖。
+    if (typeof input === 'string') {
+      input = [systemMessage, { type: 'message', role: 'user', content: input }];
+    } else if (Array.isArray(input)) {
+      input = [systemMessage, ...input];
+    } else {
+      input = [systemMessage];
+    }
     delete next.instructions;
     changed = true;
   }
