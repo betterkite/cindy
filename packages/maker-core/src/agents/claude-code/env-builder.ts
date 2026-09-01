@@ -391,7 +391,11 @@ export async function buildClaudeEnv(
   const activeContextWindow = options.modelContextWindows?.find(
     (model) => model.id === options.activeModel,
   )?.contextWindow;
-  if (Number.isFinite(activeContextWindow) && activeContextWindow > 0) {
+  if (
+    activeContextWindow !== undefined
+    && Number.isFinite(activeContextWindow)
+    && activeContextWindow > 0
+  ) {
     env.CLAUDE_CODE_MAX_CONTEXT_TOKENS = String(Math.floor(activeContextWindow));
   } else {
     delete env.CLAUDE_CODE_MAX_CONTEXT_TOKENS;
